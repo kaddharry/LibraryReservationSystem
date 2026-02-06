@@ -31,7 +31,8 @@ const BasketPage = () => {
 
             for (const book of cart) {
                 try {
-                    await axios.post('http://localhost:5000/api/reservations', { bookId: book._id }, config);
+                    // FIX: Removed localhost
+                    await axios.post('/api/reservations', { bookId: book._id }, config);
                 } catch (err) {
                     console.error(`Failed to reserve ${book.name || book.title}`, err);
                     errorCount++;

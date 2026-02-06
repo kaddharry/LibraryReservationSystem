@@ -23,8 +23,9 @@ export const AuthProvider = ({ children }) => {
                 },
             };
 
+            // FIX: Removed localhost, now using relative path
             const { data } = await axios.post(
-                'http://localhost:5000/api/auth/login',
+                '/api/auth/login',
                 { rollNumber, password },
                 config
             );
@@ -50,8 +51,9 @@ export const AuthProvider = ({ children }) => {
                 },
             };
 
+            // FIX: Removed localhost
             const { data } = await axios.post(
-                'http://localhost:5000/api/auth/register',
+                '/api/auth/register',
                 { name, rollNumber, branch, password },
                 config
             );

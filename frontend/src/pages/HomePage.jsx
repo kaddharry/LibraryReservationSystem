@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, Loader2, BookOpen, Clock, AlertCircle, X, Sparkles, Plus, CheckCircle } from 'lucide-react';
+import { Search, SlidersHorizontal, Loader2, BookOpen, Clock, AlertCircle, X, Sparkles, Plus, CheckCircle, Zap } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
 import BookCard from '../components/BookCard';
@@ -11,18 +11,20 @@ const HomePage = () => {
     const { user } = useContext(AuthContext);
     const { addToCart } = useContext(CartContext);
     const [books, setBooks] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
+    const [recType, setRecType] = useState(null);
+    const [recCategory, setRecCategory] = useState('');
+
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('All');
 
-    // Real-time Dashboard Stats
     const [dashboardStats, setDashboardStats] = useState({
         activeLoans: 0,
         dueSoon: 0,
         fines: 0
     });
 
-    // Toast State
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
     const showToast = (message, type = 'success') => {
@@ -39,12 +41,12 @@ const HomePage = () => {
         visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } }
     };
 
-    // Fetch Books
     const fetchBooks = async (search = '') => {
         setLoading(true);
         try {
             const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-            const { data } = await axios.get(`http://localhost:5000/api/books?keyword=${search}`, config);
+            // FIX: Removed localhost
+            const { data } = await axios.get(`/api/books?keyword=${search}`, config);
             if (!data || (data.length === 0 && search === '')) {
                 setBooks(mockBooks);
             } else {
@@ -57,48 +59,52 @@ const HomePage = () => {
         }
     };
 
-    // Fetch Dashboard Stats (Active Loans, Fines, Due Soon)
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchUserData = async () => {
             if (!user) return;
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                const { data } = await axios.get('http://localhost:5000/api/reservations', config);
 
+                // FIX: Removed localhost
+                const { data: resData } = await axios.get('/api/reservations', config);
                 let totalFines = 0;
                 let dueSoonCount = 0;
                 const today = new Date();
                 const threeDaysFromNow = new Date();
                 threeDaysFromNow.setDate(today.getDate() + 3);
 
-                data.forEach(res => {
+                resData.forEach(res => {
                     const deadline = new Date(res.deadlineDate);
-
-                    // Calculate Fines (30rs per day late)
                     if (today > deadline) {
                         const diffTime = Math.abs(today - deadline);
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         totalFines += diffDays * 30;
                     }
-
-                    // Calculate Due Soon (Active loans due within 3 days, not yet late)
                     if (deadline > today && deadline <= threeDaysFromNow) {
                         dueSoonCount++;
                     }
                 });
 
                 setDashboardStats({
-                    activeLoans: data.length, // Logic: Returned books are deleted, so this is accurate
+                    activeLoans: resData.length,
                     dueSoon: dueSoonCount,
                     fines: totalFines
                 });
 
+                // FIX: Removed localhost
+                const { data: recData } = await axios.get('/api/books/recommendations', config);
+                if (recData && recData.books) {
+                    setRecommendations(recData.books);
+                    setRecType(recData.type);
+                    setRecCategory(recData.category);
+                }
+
             } catch (error) {
-                console.error("Error fetching stats:", error);
+                console.error("Error fetching dashboard data:", error);
             }
         };
 
-        fetchStats();
+        fetchUserData();
     }, [user]);
 
     useEffect(() => {
@@ -119,17 +125,12 @@ const HomePage = () => {
         const bookName = (book.name || book.title || '').toLowerCase();
         const bookAuthor = (book.author || '').toLowerCase();
         const search = searchTerm.toLowerCase();
-
-        // Frontend filtering in case backend search is insufficient or fallback data is used
         const matchesSearch = bookName.includes(search) || bookAuthor.includes(search) || book.shelfNumber?.toLowerCase().includes(search);
         const matchesCategory = filter === 'All' || book.category === filter;
-
         return matchesSearch && matchesCategory;
     });
 
     const categories = ['All', 'Computer Science', 'Algorithms', 'Software Engineering', 'AI & Data Science'];
-
-    // Stats Configuration
     const stats = [
         { label: 'Active Loans', value: dashboardStats.activeLoans, icon: BookOpen, color: 'text-brand-600', bg: 'bg-brand-50' },
         { label: 'Due Soon', value: dashboardStats.dueSoon, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
@@ -162,8 +163,6 @@ const HomePage = () => {
                             </h1>
                             <p className="text-slate-500 mt-2 text-lg">Ready to expand your knowledge today?</p>
                         </div>
-
-                        {/* Live Stats Section with Animation */}
                         <div className="hidden md:flex gap-4 justify-end">
                             {stats.map((stat, idx) => (
                                 <motion.div
@@ -202,13 +201,35 @@ const HomePage = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {recommendations.length > 0 && !searchTerm && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-12"
+                    >
+                        <div className="flex items-center gap-2 mb-6">
+                            <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
+                            <h2 className="text-xl font-bold text-slate-900">
+                                {recType === 'personal' ? `Because you read ${recCategory}` : 'Trending Now'}
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {recommendations.map((book) => (
+                                <BookCard key={book._id} book={book} onReserve={handleAddToCart} />
+                            ))}
+                        </div>
+                        <div className="border-b border-slate-200 my-12"></div>
+                    </motion.div>
+                )}
+
+                <h2 className="text-lg font-bold text-slate-900 mb-6">Library Collection</h2>
+
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-32"><Loader2 className="w-12 h-12 text-brand-600 animate-spin mb-4" /><p className="text-slate-500">Fetching library collection...</p></div>
                 ) : filteredBooks.length > 0 ? (
                     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                         {filteredBooks.map((book) => (
                             <motion.div key={book._id} variants={itemVariants}>
-                                {/* Using BookCard but overriding click behavior */}
                                 <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full group">
                                     <div className="relative h-48 overflow-hidden bg-slate-100">
                                         <img src={book.imageUrl} alt={book.name || book.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />

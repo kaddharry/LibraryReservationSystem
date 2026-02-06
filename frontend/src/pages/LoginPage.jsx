@@ -44,7 +44,7 @@ const LoginPage = () => {
             <div className="hidden lg:flex relative bg-brand-900 items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 opacity-20">
                     <img
-                        src="https://images.unsplash.com/photo-1507842217121-9e87bd229e27?auto=format&fit=crop&q=80&w=1000"
+                        src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=1000"
                         alt="Library Background"
                         className="w-full h-full object-cover"
                     />

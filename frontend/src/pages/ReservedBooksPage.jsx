@@ -11,7 +11,6 @@ const ReservedBooksPage = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // Return Flow State
     const [isReturnMode, setIsReturnMode] = useState(false);
     const [selectedBooks, setSelectedBooks] = useState([]);
     const [showOtpModal, setShowOtpModal] = useState(false);
@@ -20,8 +19,8 @@ const ReservedBooksPage = () => {
     const fetchReservations = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/reservations', config);
-            // Only show books that are NOT returned for the main view
+            // FIX: Removed localhost
+            const { data } = await axios.get('/api/reservations', config);
             setReservations(data.filter(r => r.status !== 'Returned'));
         } catch (error) {
             console.error("Failed to fetch reservations", error);
@@ -78,14 +77,14 @@ const ReservedBooksPage = () => {
 
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.post('http://localhost:5000/api/reservations/return', { ids: selectedBooks }, config);
+            // FIX: Removed localhost
+            await axios.post('/api/reservations/return', { ids: selectedBooks }, config);
             navigate('/thank-you');
         } catch (error) {
             alert('Return failed: ' + (error.response?.data?.message || error.message));
         }
     };
 
-    // Animation variants
     const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
     const item = { hidden: { y: 20, opacity: 0 }, show: { y: 0, opacity: 1 } };
 
@@ -214,7 +213,6 @@ const ReservedBooksPage = () => {
                 )}
             </div>
 
-            {/* OTP Modal */}
             <AnimatePresence>
                 {showOtpModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">

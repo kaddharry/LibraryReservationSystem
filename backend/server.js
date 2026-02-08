@@ -13,7 +13,8 @@ connectDB();
 
 const app = express();
 
-app.use(cors());
+// Enable CORS for ANY website (Simplest for now)
+app.use(cors()); 
 app.use(express.json());
 
 // Routes
@@ -25,12 +26,6 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-// Vercel Serverless Config
-// Only listen to port if NOT running in Vercel (Development mode)
-if (process.env.NODE_ENV !== 'production') {
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, console.log(`Server running on port ${PORT}`));
-}
+const PORT = process.env.PORT || 5000;
 
-// Export the Express API for Vercel
-module.exports = app;
+app.listen(PORT, console.log(`Server running on port ${PORT}`));

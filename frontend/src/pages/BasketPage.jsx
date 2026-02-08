@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
-import axios from 'axios';
+import axios from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, AlertCircle, ChevronRight, ShoppingBag, Info, Loader2, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -75,7 +75,7 @@ const BasketPage = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
                             className={`mb-6 p-4 rounded-xl flex items-center gap-3 font-medium ${statusMsg.type === 'error' ? 'bg-red-100 text-red-700' :
-                                    statusMsg.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                                statusMsg.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
                                 }`}
                         >
                             <AlertCircle className="w-5 h-5" />

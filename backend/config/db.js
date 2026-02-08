@@ -1,36 +1,13 @@
 const mongoose = require('mongoose');
 
-// Cache the connection to reuse across requests (Vital for Serverless/Vercel)
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
 const connectDB = async () => {
-  if (cached.conn) {
-    return cached.conn;
-  }
-
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(process.env.MONGO_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
-  }
-  
   try {
-    cached.conn = await cached.promise;
-    console.log(`MongoDB Connected: ${cached.conn.connection.host}`);
-  } catch (e) {
-    cached.promise = null;
-    throw e;
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
   }
-
-  return cached.conn;
 };
 
 module.exports = connectDB;

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import axios from 'axios';
+import axios from '../api/axios';
 import { motion } from 'framer-motion';
 import { User, CreditCard, BookOpen, ShieldCheck, Mail, AlertTriangle, CheckCircle, Wallet, Loader2 } from 'lucide-react';
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, Loader2, BookOpen, Clock, AlertCircle, X, Sparkles, Plus, CheckCircle, Zap } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';

@@ -22,9 +22,25 @@ const RegisterPage = () => {
         }
     }, [user, navigate]);
 
+    const validatePassword = (pwd) => {
+        if (pwd.length < 8 || pwd.length > 15) return "Password must be between 8 and 15 characters";
+        if (!/\d/.test(pwd)) return "Password must contain at least one digit";
+        if (!/[A-Z]/.test(pwd)) return "Password must contain at least one upper case alphabet";
+        if (!/[a-z]/.test(pwd)) return "Password must contain at least one lower case alphabet";
+        if (!/[!@#$%&*()\-+=^]/.test(pwd)) return "Password must contain at least one special character (!@#$%&*()-+=^)";
+        if (/\s/.test(pwd)) return "Password must not contain any white space";
+        return null;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        const passwordError = validatePassword(password);
+        if (passwordError) {
+            setError(passwordError);
+            return;
+        }
 
         if (password !== confirmPassword) {
             setError('Passwords do not match');

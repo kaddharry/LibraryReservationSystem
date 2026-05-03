@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal, Loader2, BookOpen, Clock, AlertCircle, X, Sp
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
 import BookCard from '../components/BookCard';
+import AskAI from '../components/AskAI';
 import { books as mockBooks } from '../data/mockData';
 
 const HomePage = () => {
@@ -130,7 +131,7 @@ const HomePage = () => {
         return matchesSearch && matchesCategory;
     });
 
-    const categories = ['All', 'Computer Science', 'Algorithms', 'Software Engineering', 'AI & Data Science'];
+    const categories = ['All', 'Computer Science', 'Algorithms', 'Software Engineering', 'AI & Data Science', 'Databases', 'Operating Systems', 'Networking'];
     const stats = [
         { label: 'Active Loans', value: dashboardStats.activeLoans, icon: BookOpen, color: 'text-brand-600', bg: 'bg-brand-50' },
         { label: 'Due Soon', value: dashboardStats.dueSoon, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
@@ -201,6 +202,9 @@ const HomePage = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* AI Recommendation Section */}
+                <AskAI onToast={showToast} />
+
                 {recommendations.length > 0 && !searchTerm && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
